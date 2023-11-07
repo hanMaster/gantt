@@ -1,8 +1,8 @@
 import { For, Show, createSignal } from 'solid-js';
 import { ChartNode, SumTask, isSumTask } from './domain/sum-task';
 import counter from './utils/counter.ts';
-import './App.css';
 import { Task } from './domain/task.ts';
+import './App.css';
 
 function App() {
     let project: SumTask;
