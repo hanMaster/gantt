@@ -1,0 +1,39 @@
+table {
+    width: 100%;
+    border: 1px solid #555;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid #555;
+    text-align: center;
+}
+
+.title {
+    min-width: 100px;
+}
+
+.actions {
+    display: flex;
+    place-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.actions button {
+    border: 1px solid #666;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.actions button:hover {
+    background-color: salmon;
+}
+
+input {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid;
+    min-width: 300px;
+}
