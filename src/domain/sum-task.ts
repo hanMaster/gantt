@@ -49,7 +49,7 @@ export class SumTask extends Task {
         if (this.expanded) {
             for (let node of this.#children) {
                 if (isSumTask(node) && node.expanded) {
-                    result.concat(node.getChartTasks());
+                    result.push(...node.getChartTasks());
                 } else {
                     result.push(node.toChart());
                 }
