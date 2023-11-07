@@ -2,6 +2,7 @@ import { For, Show, createSignal } from 'solid-js';
 import { ChartNode, SumTask, isSumTask } from './domain/sum-task';
 import counter from './utils/counter.ts';
 import './App.css';
+import { Task } from './domain/task.ts';
 
 function App() {
     let project: SumTask;
@@ -10,25 +11,33 @@ function App() {
     const [selected, setSelected] = createSignal<number>(0);
 
     const addSumTask = () => {
-        if (title() && gantt().length) {
+        const id = counter();
+        if (gantt().length) {
             const root = selected() > 0 ? project.getNodeById(selected()) : project;
             if (isSumTask(root)) {
-                root.addTask(new SumTask(counter(), title()));
+                root.addTask(new SumTask(id, `Суммарная задача ${id}`));
                 setGantt(project.getChartTasks());
-                setTitle('');
             }
-        } else if (title()) {
-            project = new SumTask(counter(), title());
+        } else {
+            project = new SumTask(id, `Суммарная задача ${id}`);
             project.expanded = true;
             setGantt(project.getChartTasks());
-            setTitle('');
         }
-        console.log(project);
+    };
+
+    const addTask = () => {
+        const id = counter();
+        if (gantt().length) {
+            const root = selected() > 0 ? project.getNodeById(selected()) : project;
+            if (isSumTask(root)) {
+                root.addTask(new Task(id, `Задача ${id}`));
+                setGantt(project.getChartTasks());
+            }
+        }
     };
 
     const toggleExpand = (id: number) => {
         const node = project.getNodeById(id);
-        console.log('NODE', node);
 
         if (isSumTask(node)) {
             node.expanded = !node.expanded;
@@ -36,12 +45,21 @@ function App() {
         }
     };
 
+    const genArrow = (t: ChartNode) => {
+        if (!('expanded' in t)) return <></>;
+        if (t.expanded) {
+            return <i class="bx bxs-down-arrow"></i>;
+        } else {
+            return <i class="bx bxs-right-arrow"></i>;
+        }
+    };
+
     const genRow = (t: ChartNode) => {
         return (
             <tr style={{ 'background-color': `${selected() === t.id ? 'lightblue' : 'transparent'}` }}>
                 <td onClick={() => setSelected(t.id)}>{t.id}</td>
-                <td onClick={() => toggleExpand(t.id)}>
-                    {t.expanded ? 'yes' : 'no'} {t.title}
+                <td onClick={() => toggleExpand(t.id)} class="td-title">
+                    {genArrow(t)} {t.title}
                 </td>
                 <td>{t.days}</td>
                 <td>{t.startDate}</td>
@@ -55,7 +73,7 @@ function App() {
             <div class="actions">
                 <input type="text" value={title()} onInput={(e) => setTitle(e.target.value.trim())} />
                 <button onClick={addSumTask}>Add sum task</button>
-                <button>Add task</button>
+                <button onClick={addTask}>Add task</button>
             </div>
             <table>
                 <thead>

@@ -31,11 +31,17 @@ export class SumTask extends Task {
     }
 
     getNodeById(id: number): TaskNode | null {
-        let res = this.#children.find((n) => n.id === id) ?? null;
+        let res;
+        if (this.id === id) {
+            res = this;
+        } else {
+            res = this.#children.find((n) => n.id === id) ?? null;
+        }
         if (res === null) {
             for (let node of this.#children) {
                 if (isSumTask(node)) {
                     res = node.getNodeById(id);
+                    if (res) break;
                 }
             }
         }
