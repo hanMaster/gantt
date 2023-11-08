@@ -3,6 +3,7 @@ import { ChartNode, SumTask, isSumTask } from './domain/sum-task';
 import counter from './utils/counter.ts';
 import { Task } from './domain/task.ts';
 import './App.css';
+import { forDateInput } from './utils/dates.ts';
 
 function App() {
     let project: SumTask;
@@ -122,11 +123,49 @@ function App() {
         titleInput.selectionStart = titleInput.selectionEnd = titleInput.value.length;
     };
 
+    const changeDate = (e: Event, t: ChartNode, start = true) => {
+        const td = e.target as HTMLElement;
+        const date = start ? t.startDate : t.endDate;
+        const sdInput = document.createElement('input');
+        sdInput.setAttribute('type', 'date');
+        sdInput.setAttribute('value', forDateInput(date));
+        sdInput.classList.add('date-input');
+        const handleDaysBlur = (e: Event) => {
+            const input = e.target as HTMLInputElement;
+            const task = project.getNodeById(t.id);
+            if (task && input.value) {
+                if (start) {
+                    task.startDate = new Date(input.value);
+                } else {
+                    task.endDate = new Date(input.value);
+                }
+                project.chainUpdateFromTask(task.id);
+            }
+            setGantt(project.getChartTasks());
+            sdInput.removeEventListener('blur', handleDaysBlur);
+            sdInput.removeEventListener('keydown', handleKeyDown);
+        };
+
+        sdInput.addEventListener('blur', handleDaysBlur);
+        sdInput.addEventListener('keydown', handleKeyDown);
+
+        function handleKeyDown(e: KeyboardEvent) {
+            if (e.key == 'Escape') {
+                td.innerHTML = start ? t.startDate : t.endDate;
+            } else if (e.key == 'Enter') {
+                handleDaysBlur(e);
+            }
+        }
+        td.innerHTML = '';
+        td.append(sdInput);
+        sdInput.focus();
+    };
+
     const genRow = (t: ChartNode) => {
         if ('expanded' in t /* Sum Task */) {
             return (
                 <tr style={{ 'background-color': `${selected() === t.id ? 'lightblue' : 'transparent'}` }}>
-                    <td onClick={() => setSelected(t.id)}>{t.id}</td>
+                    <td onClick={() => setSelected(selected() === t.id ? 0 : t.id)}>{t.id}</td>
                     <td onDblClick={(e) => changeTitle(e, t)} class="td-title">
                         <span onClick={() => toggleExpand(t.id)}>{genArrow(t)}</span> {t.title}
                     </td>
@@ -145,8 +184,12 @@ function App() {
                     <td onDblClick={(e) => changeDays(e, t)} class="days">
                         {t.days}
                     </td>
-                    <td class="date">{t.startDate}</td>
-                    <td>{t.endDate}</td>
+                    <td onDblClick={(e) => changeDate(e, t)} class="date">
+                        {t.startDate}
+                    </td>
+                    <td onDblClick={(e) => changeDate(e, t, false)} class="date">
+                        {t.endDate}
+                    </td>
                 </tr>
             );
         }

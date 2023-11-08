@@ -55,7 +55,7 @@ export class Task {
 
     set startDate(date: Date) {
         this.#startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        this.#endDate = dayjs(this.#startDate).add(this.#days, 'days').subtract(1, 'second').toDate();
+        this.#days = dayjs(this.#endDate).diff(this.#startDate, 'days') + 1;
     }
 
     set days(days: number) {
