@@ -1,5 +1,4 @@
 table {
-    width: 100%;
     border: 1px solid #555;
     border-collapse: collapse;
 }
@@ -10,8 +9,8 @@ td {
     text-align: center;
 }
 
-.title {
-    min-width: 100px;
+th.title {
+    min-width: 521px;
 }
 
 .td-title {
@@ -23,7 +22,7 @@ td {
 .actions {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: start;
     gap: 10px;
     margin-bottom: 30px;
 }
@@ -58,8 +57,16 @@ td {
     background-color: rgba(169, 247, 149, 0.78);
 }
 
-td.days {
+th.days {
     width: 50px;
     padding: 0;
     margin: 0;
+}
+
+th.date {
+    width: 100px;
+}
+
+th.id {
+    width: 40px;
 }

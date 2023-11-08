@@ -73,7 +73,10 @@ function App() {
             daysInput.removeEventListener('keydown', handleKeyDown);
         };
         function handleKeyDown(e: KeyboardEvent) {
-            if (e.key == 'Enter') {
+            if (e.key == 'Escape') {
+                daysInput.value = t.days.toString();
+                td.innerHTML = '';
+            } else if (e.key == 'Enter') {
                 handleDaysBlur(e);
             }
         }
@@ -106,7 +109,10 @@ function App() {
         titleInput.addEventListener('keydown', handleKeyDown);
 
         function handleKeyDown(e: KeyboardEvent) {
-            if (e.key == 'Enter') {
+            if (e.key == 'Escape') {
+                titleInput.value = t.title;
+                td.innerHTML = '';
+            } else if (e.key == 'Enter') {
                 handleDaysBlur(e);
             }
         }
@@ -125,8 +131,8 @@ function App() {
                         <span onClick={() => toggleExpand(t.id)}>{genArrow(t)}</span> {t.title}
                     </td>
                     <td class="days">{t.days}</td>
-                    <td>{t.startDate}</td>
-                    <td>{t.endDate}</td>
+                    <td class="date">{t.startDate}</td>
+                    <td class="date">{t.endDate}</td>
                 </tr>
             );
         } else {
@@ -139,7 +145,7 @@ function App() {
                     <td onDblClick={(e) => changeDays(e, t)} class="days">
                         {t.days}
                     </td>
-                    <td>{t.startDate}</td>
+                    <td class="date">{t.startDate}</td>
                     <td>{t.endDate}</td>
                 </tr>
             );
@@ -149,17 +155,17 @@ function App() {
     return (
         <>
             <div class="actions">
-                <button onClick={addSumTask}>Add sum task</button>
-                <button onClick={addTask}>Add task</button>
+                <button onClick={addSumTask}>Суммарная задача</button>
+                <button onClick={addTask}>Задача</button>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th>id</th>
-                        <th class="title">title</th>
-                        <th>days</th>
-                        <th>start</th>
-                        <th>end</th>
+                        <th class="id">№</th>
+                        <th class="title">Наименование</th>
+                        <th class="days">Дни</th>
+                        <th class="date">Начало</th>
+                        <th class="date">Окончание</th>
                     </tr>
                 </thead>
                 <tbody>
