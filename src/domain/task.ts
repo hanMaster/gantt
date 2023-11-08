@@ -4,15 +4,17 @@ import { ChartNode } from './sum-task';
 export class Task {
     #id: number;
     #title: string;
+    #sumTaskId: number;
     // #relations: number[] = [];
     #startDate = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
     #days = 1;
     #endDate = dayjs(this.#startDate).add(this.#days, 'days').subtract(1, 'second').toDate();
     #volume = 0;
 
-    constructor(id: number, title: string) {
+    constructor(id: number, title: string, sumTaskId: number) {
         this.#id = id;
         this.#title = title;
+        this.#sumTaskId = sumTaskId;
     }
 
     get id() {
@@ -37,6 +39,10 @@ export class Task {
 
     get title() {
         return this.#title;
+    }
+
+    get sumTaskId() {
+        return this.#sumTaskId;
     }
 
     set title(title: string) {

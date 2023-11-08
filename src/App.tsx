@@ -6,7 +6,6 @@ import './App.css';
 
 function App() {
     let project: SumTask;
-    const [title, setTitle] = createSignal<string>('');
     const [gantt, setGantt] = createSignal<ChartNode[]>([]);
     const [selected, setSelected] = createSignal<number>(0);
 
@@ -15,22 +14,22 @@ function App() {
         if (gantt().length) {
             const root = selected() > 0 ? project.getNodeById(selected()) : project;
             if (isSumTask(root)) {
-                root.addTask(new SumTask(id, `Суммарная задача ${id}`));
+                root.addTask(new SumTask(id, `Суммарная задача ${id}`, root.id));
                 setGantt(project.getChartTasks());
             }
         } else {
-            project = new SumTask(id, `Суммарная задача ${id}`);
+            project = new SumTask(id, `Суммарная задача ${id}`, 0);
             project.expanded = true;
             setGantt(project.getChartTasks());
         }
     };
 
     const addTask = () => {
-        const id = counter();
         if (gantt().length) {
+            const id = counter();
             const root = selected() > 0 ? project.getNodeById(selected()) : project;
             if (isSumTask(root)) {
-                root.addTask(new Task(id, `Задача ${id}`));
+                root.addTask(new Task(id, `Задача ${id}`, root.id));
                 setGantt(project.getChartTasks());
             }
         }
@@ -54,24 +53,59 @@ function App() {
         }
     };
 
+    const changeDays = (e: Event, t: ChartNode) => {
+        setSelected(t.id);
+        const td = e.target as HTMLElement;
+        const daysInput = document.createElement('input');
+        daysInput.setAttribute('type', 'number');
+        daysInput.setAttribute('step', '1');
+        daysInput.setAttribute('min', '1');
+        daysInput.setAttribute('value', t.days.toString());
+        daysInput.classList.add('days-input');
+        daysInput.addEventListener('blur', function () {
+            const task = project.getNodeById(t.id);
+            if (task) {
+                task.days = Number(this.value);
+                project.chainUpdateFromTask(task.id);
+            }
+            setSelected(0);
+            setGantt(project.getChartTasks());
+        });
+        td.innerHTML = '';
+        td.append(daysInput);
+    };
+
     const genRow = (t: ChartNode) => {
-        return (
-            <tr style={{ 'background-color': `${selected() === t.id ? 'lightblue' : 'transparent'}` }}>
-                <td onClick={() => setSelected(t.id)}>{t.id}</td>
-                <td onClick={() => toggleExpand(t.id)} class="td-title">
-                    {genArrow(t)} {t.title}
-                </td>
-                <td>{t.days}</td>
-                <td>{t.startDate}</td>
-                <td>{t.endDate}</td>
-            </tr>
-        );
+        if ('expanded' in t /* Sum Task */) {
+            return (
+                <tr style={{ 'background-color': `${selected() === t.id ? 'lightblue' : 'transparent'}` }}>
+                    <td onClick={() => setSelected(t.id)}>{t.id}</td>
+                    <td onClick={() => toggleExpand(t.id)} class="td-title">
+                        {genArrow(t)} {t.title}
+                    </td>
+                    <td class="days">{t.days}</td>
+                    <td>{t.startDate}</td>
+                    <td>{t.endDate}</td>
+                </tr>
+            );
+        } else {
+            return (
+                <tr>
+                    <td>{t.id}</td>
+                    <td class="td-title">{t.title}</td>
+                    <td onDblClick={(e) => changeDays(e, t)} class="days">
+                        {t.days}
+                    </td>
+                    <td>{t.startDate}</td>
+                    <td>{t.endDate}</td>
+                </tr>
+            );
+        }
     };
 
     return (
         <>
             <div class="actions">
-                <input type="text" value={title()} onInput={(e) => setTitle(e.target.value.trim())} />
                 <button onClick={addSumTask}>Add sum task</button>
                 <button onClick={addTask}>Add task</button>
             </div>

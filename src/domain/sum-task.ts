@@ -19,15 +19,13 @@ export function isSumTask(node: TaskNode | null): node is SumTask {
 export class SumTask extends Task {
     #children: TaskNode[] = [];
     expanded = false;
-    constructor(id: number, title: string) {
-        super(id, title);
+    constructor(id: number, title: string, sumTaskId: number) {
+        super(id, title, sumTaskId);
     }
 
     addTask(task: TaskNode) {
         this.#children.push(task);
-        const { start, end } = this.calcDates();
-        this.startDate = start;
-        this.endDate = end;
+        this.updateDates();
     }
 
     getNodeById(id: number): TaskNode | null {
@@ -73,6 +71,26 @@ export class SumTask extends Task {
             endDate: dayjs(this.endDate).format('DD.MM.YYYY'),
             expanded: this.expanded,
         };
+    }
+
+    chainUpdateFromTask(taskId: number) {
+        const task = this.getNodeById(taskId);
+        if (task) {
+            let parentId = task.sumTaskId;
+            while (parentId > 0) {
+                const parent = this.getNodeById(parentId);
+                if (isSumTask(parent)) {
+                    parent.updateDates();
+                    parentId = parent.sumTaskId;
+                }
+            }
+        }
+    }
+
+    updateDates() {
+        const { start, end } = this.calcDates();
+        this.startDate = start;
+        this.endDate = end;
     }
 
     private calcDates(): { start: Date; end: Date } {
