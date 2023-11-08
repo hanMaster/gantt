@@ -80,3 +80,11 @@ td.pointer {
 th.id {
     width: 40px;
 }
+
+td.move {
+    cursor: pointer;
+}
+
+td.move:hover {
+    color: brown;
+}

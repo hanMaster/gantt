@@ -161,6 +161,16 @@ function App() {
         sdInput.focus();
     };
 
+    const handleUp = (id: number) => {
+        project.moveChild(id);
+        setGantt(project.getChartTasks());
+    };
+
+    const handleDown = (id: number) => {
+        project.moveChild(id, false);
+        setGantt(project.getChartTasks());
+    };
+
     const genRow = (t: ChartNode) => {
         if ('expanded' in t /* Sum Task */) {
             return (
@@ -174,6 +184,12 @@ function App() {
                     <td class="days">{t.days}</td>
                     <td class="date">{t.startDate}</td>
                     <td class="date">{t.endDate}</td>
+                    <td class="move" onClick={() => handleUp(t.id)}>
+                        <i class="bx bxs-up-arrow"></i>
+                    </td>
+                    <td class="move" onClick={() => handleDown(t.id)}>
+                        <i class="bx bxs-down-arrow"></i>
+                    </td>
                 </tr>
             );
         } else {
@@ -191,6 +207,12 @@ function App() {
                     </td>
                     <td onDblClick={(e) => changeDate(e, t, false)} class="date pointer">
                         {t.endDate}
+                    </td>
+                    <td class="move" onClick={() => handleUp(t.id)}>
+                        <i class="bx bxs-up-arrow"></i>
+                    </td>
+                    <td class="move" onClick={() => handleDown(t.id)}>
+                        <i class="bx bxs-down-arrow"></i>
                     </td>
                 </tr>
             );
@@ -211,6 +233,8 @@ function App() {
                         <th class="days">Дни</th>
                         <th class="date">Начало</th>
                         <th class="date">Окончание</th>
+                        <th class="move"></th>
+                        <th class="move"></th>
                     </tr>
                 </thead>
                 <tbody>

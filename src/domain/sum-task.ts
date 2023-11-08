@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { Task } from './task';
+import { swapItems } from '../utils/children';
 
 export type TaskNode = Task | SumTask;
 
@@ -91,6 +92,16 @@ export class SumTask extends Task {
         const { start, end } = this.calcDates();
         this.startDate = start;
         this.endDate = end;
+    }
+
+    moveChild(taskId: number, up = true) {
+        const parentId = this.getNodeById(taskId)?.sumTaskId;
+        if (parentId && parentId > 0) {
+            const parent = this.getNodeById(parentId);
+            if (parent && isSumTask(parent)) {
+                swapItems(parent.#children, taskId, up);
+            }
+        }
     }
 
     private calcDates(): { start: Date; end: Date } {
