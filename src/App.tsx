@@ -54,7 +54,6 @@ function App() {
     };
 
     const changeDays = (e: Event, t: ChartNode) => {
-        setSelected(t.id);
         const td = e.target as HTMLElement;
         const daysInput = document.createElement('input');
         daysInput.setAttribute('type', 'number');
@@ -62,17 +61,59 @@ function App() {
         daysInput.setAttribute('min', '1');
         daysInput.setAttribute('value', t.days.toString());
         daysInput.classList.add('days-input');
-        daysInput.addEventListener('blur', function () {
+        const handleDaysBlur = (e: Event) => {
+            const input = e.target as HTMLInputElement;
             const task = project.getNodeById(t.id);
             if (task) {
-                task.days = Number(this.value);
+                task.days = Number(input.value);
                 project.chainUpdateFromTask(task.id);
             }
-            setSelected(0);
             setGantt(project.getChartTasks());
-        });
+            daysInput.removeEventListener('blur', handleDaysBlur);
+            daysInput.removeEventListener('keydown', handleKeyDown);
+        };
+        function handleKeyDown(e: KeyboardEvent) {
+            if (e.key == 'Enter') {
+                handleDaysBlur(e);
+            }
+        }
+        daysInput.addEventListener('blur', handleDaysBlur);
+        daysInput.addEventListener('keydown', handleKeyDown);
         td.innerHTML = '';
         td.append(daysInput);
+        daysInput.focus();
+    };
+
+    const changeTitle = (e: Event, t: ChartNode) => {
+        const td = e.target as HTMLElement;
+        const titleInput = document.createElement('input');
+        titleInput.setAttribute('type', 'text');
+        titleInput.setAttribute('value', t.title.toString());
+        titleInput.classList.add('title-input');
+        const handleDaysBlur = (e: Event) => {
+            const input = e.target as HTMLInputElement;
+            const task = project.getNodeById(t.id);
+            const newVal = input.value.trim();
+            if (task && newVal) {
+                task.title = newVal;
+            }
+            setGantt(project.getChartTasks());
+            titleInput.removeEventListener('blur', handleDaysBlur);
+            titleInput.removeEventListener('keydown', handleKeyDown);
+        };
+
+        titleInput.addEventListener('blur', handleDaysBlur);
+        titleInput.addEventListener('keydown', handleKeyDown);
+
+        function handleKeyDown(e: KeyboardEvent) {
+            if (e.key == 'Enter') {
+                handleDaysBlur(e);
+            }
+        }
+        td.innerHTML = '';
+        td.append(titleInput);
+        titleInput.focus();
+        titleInput.selectionStart = titleInput.selectionEnd = titleInput.value.length;
     };
 
     const genRow = (t: ChartNode) => {
@@ -80,8 +121,8 @@ function App() {
             return (
                 <tr style={{ 'background-color': `${selected() === t.id ? 'lightblue' : 'transparent'}` }}>
                     <td onClick={() => setSelected(t.id)}>{t.id}</td>
-                    <td onClick={() => toggleExpand(t.id)} class="td-title">
-                        {genArrow(t)} {t.title}
+                    <td onDblClick={(e) => changeTitle(e, t)} class="td-title">
+                        <span onClick={() => toggleExpand(t.id)}>{genArrow(t)}</span> {t.title}
                     </td>
                     <td class="days">{t.days}</td>
                     <td>{t.startDate}</td>
@@ -92,7 +133,9 @@ function App() {
             return (
                 <tr>
                     <td>{t.id}</td>
-                    <td class="td-title">{t.title}</td>
+                    <td onDblClick={(e) => changeTitle(e, t)} class="td-title">
+                        {t.title}
+                    </td>
                     <td onDblClick={(e) => changeDays(e, t)} class="days">
                         {t.days}
                     </td>

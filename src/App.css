@@ -17,6 +17,7 @@ td {
 .td-title {
     text-align: left;
     padding: 0 10px;
+    width: 500px;
 }
 
 .actions {
@@ -44,6 +45,17 @@ td {
     padding: 0;
     border: none;
     outline: none;
+    background-color: rgba(169, 247, 149, 0.78);
+}
+
+.title-input {
+    width: calc(100% - 22px);
+    height: 25px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    background-color: rgba(169, 247, 149, 0.78);
 }
 
 td.days {
