@@ -17,6 +17,7 @@ th.title {
     text-align: left;
     padding: 0 10px;
     width: 500px;
+    cursor: pointer;
 }
 
 .actions {
@@ -70,6 +71,10 @@ th.days {
 
 th.date {
     width: 120px;
+}
+
+td.pointer {
+    cursor: pointer;
 }
 
 th.id {

@@ -165,7 +165,9 @@ function App() {
         if ('expanded' in t /* Sum Task */) {
             return (
                 <tr style={{ 'background-color': `${selected() === t.id ? 'lightblue' : 'transparent'}` }}>
-                    <td onClick={() => setSelected(selected() === t.id ? 0 : t.id)}>{t.id}</td>
+                    <td onClick={() => setSelected(selected() === t.id ? 0 : t.id)} class="pointer">
+                        {t.id}
+                    </td>
                     <td onDblClick={(e) => changeTitle(e, t)} class="td-title">
                         <span onClick={() => toggleExpand(t.id)}>{genArrow(t)}</span> {t.title}
                     </td>
@@ -181,13 +183,13 @@ function App() {
                     <td onDblClick={(e) => changeTitle(e, t)} class="td-title">
                         {t.title}
                     </td>
-                    <td onDblClick={(e) => changeDays(e, t)} class="days">
+                    <td onDblClick={(e) => changeDays(e, t)} class="days pointer">
                         {t.days}
                     </td>
-                    <td onDblClick={(e) => changeDate(e, t)} class="date">
+                    <td onDblClick={(e) => changeDate(e, t)} class="date pointer">
                         {t.startDate}
                     </td>
-                    <td onDblClick={(e) => changeDate(e, t, false)} class="date">
+                    <td onDblClick={(e) => changeDate(e, t, false)} class="date pointer">
                         {t.endDate}
                     </td>
                 </tr>
