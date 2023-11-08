@@ -45,6 +45,10 @@ export class Task {
         return this.#sumTaskId;
     }
 
+    get dependencies() {
+        return this.#dependencies;
+    }
+
     set title(title: string) {
         this.#title = title;
     }
