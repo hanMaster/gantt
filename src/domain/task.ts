@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
-import { ChartNode } from './sum-task';
+import { ChartNode, Dependency } from './interfaces';
 
 export class Task {
     #id: number;
     #title: string;
     #sumTaskId: number;
-    // #relations: number[] = [];
+    #dependencies: Dependency[] = [];
     #startDate = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
     #days = 1;
     #endDate = dayjs(this.#startDate).add(this.#days, 'days').subtract(1, 'second').toDate();

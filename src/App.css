@@ -32,10 +32,13 @@ th.title {
     border: 1px solid #666;
     border-radius: 5px;
     padding: 10px;
+    font-size: 18px;
+    font-family: 'Roboto Mono', monospace;
 }
 
 .actions button:hover {
     background-color: salmon;
+    color: white;
 }
 
 .days-input {

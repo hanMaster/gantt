@@ -1,9 +1,10 @@
 import { For, Show, createSignal } from 'solid-js';
-import { ChartNode, SumTask, isSumTask } from './domain/sum-task';
+import { SumTask } from './domain/sum-task';
 import counter from './utils/counter.ts';
 import { Task } from './domain/task.ts';
 import './App.css';
 import { forDateInput } from './utils/dates.ts';
+import { ChartNode, isSumTask } from './domain/interfaces.ts';
 
 function App() {
     let project: SumTask;
@@ -171,6 +172,10 @@ function App() {
         setGantt(project.getChartTasks());
     };
 
+    const handleLink = (id: number) => {
+        console.log(id);
+    };
+
     const genRow = (t: ChartNode) => {
         if ('expanded' in t /* Sum Task */) {
             return (
@@ -189,6 +194,9 @@ function App() {
                     </td>
                     <td class="move" onClick={() => handleDown(t.id)}>
                         <i class="bx bxs-down-arrow"></i>
+                    </td>
+                    <td class="move" onClick={() => handleLink(t.id)}>
+                        <i class="bx bx-link"></i>
                     </td>
                 </tr>
             );
@@ -214,6 +222,9 @@ function App() {
                     <td class="move" onClick={() => handleDown(t.id)}>
                         <i class="bx bxs-down-arrow"></i>
                     </td>
+                    <td class="move" onClick={() => handleLink(t.id)}>
+                        <i class="bx bx-link"></i>
+                    </td>
                 </tr>
             );
         }
@@ -235,6 +246,7 @@ function App() {
                         <th class="date">Окончание</th>
                         <th class="move"></th>
                         <th class="move"></th>
+                        <th class="move">Предшественники</th>
                     </tr>
                 </thead>
                 <tbody>

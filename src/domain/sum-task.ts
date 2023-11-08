@@ -1,21 +1,7 @@
 import dayjs from 'dayjs';
 import { Task } from './task';
 import { swapItems } from '../utils/children';
-
-export type TaskNode = Task | SumTask;
-
-export interface ChartNode {
-    id: number;
-    title: string;
-    days: number;
-    startDate: string;
-    endDate: string;
-    expanded?: boolean;
-}
-
-export function isSumTask(node: TaskNode | null): node is SumTask {
-    return node instanceof SumTask;
-}
+import { ChartNode, TaskNode, isSumTask } from './interfaces';
 
 export class SumTask extends Task {
     #children: TaskNode[] = [];
