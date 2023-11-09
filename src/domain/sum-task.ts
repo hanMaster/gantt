@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { Task } from './task';
 import { swapItems } from '../utils/children';
-import { ChartNode, TaskNode, isSumTask } from './interfaces';
+import { ChartNode, DependencyTask, TaskNode, isSumTask } from './interfaces';
 
 export class SumTask extends Task {
     #children: TaskNode[] = [];
@@ -49,6 +49,19 @@ export class SumTask extends Task {
         return result;
     }
 
+    getAllTasks(): Task[] {
+        const result = [];
+        result.push(this);
+        for (let node of this.#children) {
+            if (isSumTask(node)) {
+                result.push(...node.getAllTasks());
+            } else {
+                result.push(node);
+            }
+        }
+        return result;
+    }
+
     toChart(): ChartNode {
         return {
             id: this.id,
@@ -88,6 +101,35 @@ export class SumTask extends Task {
                 swapItems(parent.#children, taskId, up);
             }
         }
+    }
+
+    getParents(taskId: number): number[] {
+        const res = [];
+        let id = taskId;
+        res.push(taskId);
+        while (id > 0) {
+            const task = this.getNodeById(id);
+            if (task) {
+                res.push(task.sumTaskId);
+                id = task.sumTaskId;
+            }
+        }
+        return res;
+    }
+
+    getDependenciesForTask(taskId: number): DependencyTask[] {
+        const chartTasks = this.getAllTasks();
+        const excludeList: number[] = this.getParents(taskId);
+
+        const res = chartTasks
+            .filter((t) => !excludeList.includes(t.id))
+            .map((t) => ({
+                id: t.id,
+                title: t.title,
+                startDate: dayjs(this.startDate).format('DD.MM.YYYY'),
+                endDate: dayjs(this.endDate).format('DD.MM.YYYY'),
+            }));
+        return res;
     }
 
     private calcDates(): { start: Date; end: Date } {

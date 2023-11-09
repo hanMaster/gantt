@@ -4,12 +4,17 @@ import counter from './utils/counter.ts';
 import { Task } from './domain/task.ts';
 import './App.css';
 import { forDateInput } from './utils/dates.ts';
-import { ChartNode, isSumTask } from './domain/interfaces.ts';
+import { ChartNode, DependencyTask, DependencyType, isSumTask } from './domain/interfaces.ts';
 
 function App() {
     let project: SumTask;
     const [gantt, setGantt] = createSignal<ChartNode[]>([]);
     const [selected, setSelected] = createSignal<number>(0);
+    const [showLinkForm, setShowLinkForm] = createSignal<boolean>(false);
+    const [deps, setDeps] = createSignal<DependencyTask[]>([]);
+    const [depTaskId, setDepTaskId] = createSignal<number>(0);
+    const [depType, setDepType] = createSignal<DependencyType>(DependencyType.EndStart);
+    const [delay, setDelay] = createSignal<number>(0);
 
     const addSumTask = () => {
         const id = counter();
@@ -173,7 +178,8 @@ function App() {
     };
 
     const handleLink = (id: number) => {
-        console.log(id);
+        setDeps(project.getDependenciesForTask(id));
+        setShowLinkForm(true);
     };
 
     const genRow = (t: ChartNode) => {
@@ -195,8 +201,8 @@ function App() {
                     <td class="move" onClick={() => handleDown(t.id)}>
                         <i class="bx bxs-down-arrow"></i>
                     </td>
-                    <td class="move" onClick={() => handleLink(t.id)}>
-                        <i class="bx bx-link"></i>
+                    <td class={t.id > 1 ? 'move' : undefined} onClick={() => handleLink(t.id)}>
+                        {t.id > 1 && <i class="bx bx-link"></i>}
                     </td>
                 </tr>
             );
@@ -230,12 +236,52 @@ function App() {
         }
     };
 
+    const handleCancel = () => {
+        setDepTaskId(0);
+        setDepType(DependencyType.EndStart);
+        setDelay(0);
+        setShowLinkForm(false);
+    };
+
     return (
         <>
             <div class="actions">
                 <button onClick={addSumTask}>Суммарная задача</button>
                 <button onClick={addTask}>Задача</button>
             </div>
+            {showLinkForm() && (
+                <form class="deps-form">
+                    <h2>Редактирование связи</h2>
+                    <select class="deps-input" value={depTaskId()}>
+                        <For each={deps()}>
+                            {(dep) => (
+                                <option
+                                    value={dep.id}
+                                >{`№${dep.id} "${dep.title}" С: ${dep.startDate} По: ${dep.endDate}`}</option>
+                            )}
+                        </For>
+                    </select>
+                    <div class="deps-properties">
+                        <div class="form-group">
+                            <label for="dep-type">Тип связи</label>
+                            <select id="dep-type" class="deps-input" value={depType()}>
+                                <option value="es">Окночание-Начало</option>
+                                <option value="ss">Начало-Начало</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="delay">Задержка</label>
+                            <input id="delay" class="deps-input" type="number" step="1" value={delay()} />
+                        </div>
+                    </div>
+                    <div class="buttons">
+                        <button class="ok">Ок</button>
+                        <button class="cancel" onClick={handleCancel}>
+                            Отмена
+                        </button>
+                    </div>
+                </form>
+            )}
             <table>
                 <thead>
                     <tr>

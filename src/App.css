@@ -91,3 +91,74 @@ td.move {
 td.move:hover {
     color: brown;
 }
+
+.deps-form {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid;
+    border-radius: 10px;
+    padding: 20px;
+    gap: 10px;
+    max-width: 700px;
+    margin: 30px auto;
+}
+
+.deps-form button {
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    transition: background-color 0.25s ease;
+}
+
+.deps-form button.ok {
+    background-color: rgb(44, 163, 83);
+}
+
+.deps-form button.ok:hover {
+    background-color: rgb(9, 99, 39);
+}
+
+.deps-form button.cancel {
+    background-color: salmon;
+}
+
+.deps-form button.cancel:hover {
+    background-color: rgb(153, 52, 41);
+}
+
+.deps-form .buttons {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+.deps-form h2 {
+    padding: 0;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 400;
+    text-align: center;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.deps-properties {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.deps-input {
+    padding: 3px 5px;
+    outline: none;
+    font-size: 18px;
+    min-width: 100px;
+}

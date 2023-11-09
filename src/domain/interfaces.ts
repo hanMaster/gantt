@@ -16,6 +16,13 @@ export interface ChartNode {
     expanded?: boolean;
 }
 
+export interface DependencyTask {
+    id: number;
+    title: string;
+    startDate: string;
+    endDate: string;
+}
+
 export enum DependencyType {
     EndStart = 'es',
     StartStart = 'ss',
