@@ -84,7 +84,13 @@ export class Task {
 
     set endDate(date: Date) {
         this.#endDate = toEndDate(date);
-        this.#days = dayjs(this.#endDate).diff(this.#startDate, 'days') + 1;
+        if (dayjs(date).isBefore(dayjs(this.#startDate))) {
+            this.#startDate = dayjs(date)
+                .subtract(this.#days - 1, 'days')
+                .toDate();
+        } else {
+            this.#days = dayjs(this.#endDate).diff(this.#startDate, 'days') + 1;
+        }
     }
 
     toChart(): ChartNode {
