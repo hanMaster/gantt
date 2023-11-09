@@ -103,7 +103,7 @@ export class SumTask extends Task {
         }
     }
 
-    getParents(taskId: number): number[] {
+    getParentsForFilter(taskId: number): number[] {
         const res = [];
         let id = taskId;
         res.push(taskId);
@@ -117,9 +117,26 @@ export class SumTask extends Task {
         return res;
     }
 
+    getChildrenForFilter(taskId: number): number[] {
+        const result = [];
+        const task = this.getNodeById(taskId);
+        if (isSumTask(task)) {
+            for (let node of task.#children) {
+                if (isSumTask(node)) {
+                    result.push(...node.getChildrenForFilter(node.id));
+                } else {
+                    result.push(node.id);
+                }
+            }
+        }
+
+        return result;
+    }
+
     getDependenciesForTask(taskId: number): DependencyTask[] {
         const chartTasks = this.getAllTasks();
-        const excludeList: number[] = this.getParents(taskId);
+        const excludeList: number[] = this.getParentsForFilter(taskId);
+        excludeList.push(...this.getChildrenForFilter(taskId));
 
         const res = chartTasks
             .filter((t) => !excludeList.includes(t.id))
