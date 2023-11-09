@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { Task } from './task';
 import { swapItems } from '../utils/children';
-import { ChartNode, DependencyTask, TaskNode, isSumTask } from './interfaces';
+import { ChartNode, Dependency, DependencyTask, DependencyType, TaskNode, isSumTask } from './interfaces';
 
 export class SumTask extends Task {
     #children: TaskNode[] = [];
@@ -144,6 +144,19 @@ export class SumTask extends Task {
         return res;
     }
 
+    addOrUpdateDependency(d: Dependency, taskId: number) {
+        const task = this.getNodeById(taskId);
+        if (task) {
+            const idx = task.dependencies.findIndex((i) => i.id === d.id);
+            if (idx === -1) {
+                task.dependencies.push(d);
+            } else {
+                task.dependencies.splice(idx, 1, d);
+            }
+        }
+        this.calcDeps();
+    }
+
     private calcDates(): { start: Date; end: Date } {
         let start = new Date();
         let end = new Date();
@@ -161,5 +174,25 @@ export class SumTask extends Task {
         }
 
         return { start, end };
+    }
+
+    private calcDeps() {
+        const tasks = this.getAllTasks();
+        tasks.forEach((t) => {
+            if (t.dependencies.length) {
+                const dates = t.dependencies.map((d) => {
+                    const dep = this.getNodeById(d.id);
+                    if (dep) {
+                        if (d.dependencyType === DependencyType.EndStart) {
+                            return dayjs(dep.endDate).add(1, 'days').add(d.delayInDays, 'days');
+                        } else {
+                            return dayjs(dep.startDate).add(d.delayInDays, 'days');
+                        }
+                    }
+                });
+
+                console.log(dates.map((d) => d?.toDate()));
+            }
+        });
     }
 }

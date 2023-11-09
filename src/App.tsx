@@ -213,7 +213,7 @@ function App() {
                     <td class={t.id > 1 ? 'deps' : undefined} onClick={() => handleLink(t.id)}>
                         {t.id > 1 && (
                             <>
-                                <i class="bx bx-link"></i> <br />
+                                <i class="bx bx-link"></i>&nbsp;
                                 {genDeps(t)}
                             </>
                         )}
@@ -243,7 +243,7 @@ function App() {
                         <i class="bx bxs-down-arrow"></i>
                     </td>
                     <td class="deps" onClick={() => handleLink(t.id)}>
-                        <i class="bx bx-link"></i>
+                        <i class="bx bx-link"></i>&nbsp;
                         {genDeps(t)}
                     </td>
                 </tr>
@@ -261,14 +261,13 @@ function App() {
 
     const handleAddDependency = (e: Event) => {
         e.preventDefault();
-        const task = project.getNodeById(selected());
-        if (task && depTaskId() > 0) {
+        if (selected() > 0 && depTaskId() > 0) {
             const d: Dependency = {
                 id: depTaskId(),
                 dependencyType: depType(),
                 delayInDays: delay(),
             };
-            task.addOrUpdateDependency(d);
+            project.addOrUpdateDependency(d, selected());
             setGantt(project.getChartTasks());
         }
         handleCancel();

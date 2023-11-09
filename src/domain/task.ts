@@ -1,3 +1,4 @@
+import { toEndDate, toSatrtDate } from './../utils/dates';
 import dayjs from 'dayjs';
 import { ChartNode, Dependency } from './interfaces';
 
@@ -6,9 +7,9 @@ export class Task {
     #title: string;
     #sumTaskId: number;
     #dependencies: Dependency[] = [];
-    #startDate = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+    #startDate = toSatrtDate(new Date());
     #days = 1;
-    #endDate = dayjs(this.#startDate).add(this.#days, 'days').subtract(1, 'second').toDate();
+    #endDate = dayjs(this.#startDate).add(1, 'days').subtract(1, 'second').toDate();
     #volume = 0;
 
     constructor(id: number, title: string, sumTaskId: number) {
@@ -49,15 +50,6 @@ export class Task {
         return this.#dependencies;
     }
 
-    addOrUpdateDependency(d: Dependency) {
-        const idx = this.#dependencies.findIndex((i) => i.id === d.id);
-        if (idx === -1) {
-            this.#dependencies.push(d);
-        } else {
-            this.#dependencies.splice(idx, 1, d);
-        }
-    }
-
     deleteDependency(depId: number) {
         this.#dependencies = this.#dependencies.filter((d) => d.id !== depId);
     }
@@ -71,8 +63,18 @@ export class Task {
     }
 
     set startDate(date: Date) {
-        this.#startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        this.#days = dayjs(this.#endDate).diff(this.#startDate, 'days') + 1;
+        this.#startDate = toSatrtDate(date);
+        const newDays = dayjs(this.#endDate).diff(this.#startDate, 'days') + 1;
+        if (newDays > 0) {
+            this.#days = newDays;
+        } else {
+            this.#endDate = dayjs(this.#startDate).add(this.#days, 'days').subtract(1, 'second').toDate();
+        }
+    }
+
+    set depStartDate(date: Date) {
+        this.#startDate = toSatrtDate(date);
+        this.#endDate = dayjs(this.#startDate).add(this.#days, 'days').subtract(1, 'second').toDate();
     }
 
     set days(days: number) {
@@ -81,7 +83,7 @@ export class Task {
     }
 
     set endDate(date: Date) {
-        this.#endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+        this.#endDate = toEndDate(date);
         this.#days = dayjs(this.#endDate).diff(this.#startDate, 'days') + 1;
     }
 
