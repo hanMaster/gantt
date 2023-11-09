@@ -63,14 +63,9 @@ export class SumTask extends Task {
     }
 
     toChart(): ChartNode {
-        return {
-            id: this.id,
-            title: this.title,
-            days: this.days,
-            startDate: dayjs(this.startDate).format('DD.MM.YYYY'),
-            endDate: dayjs(this.endDate).format('DD.MM.YYYY'),
-            expanded: this.expanded,
-        };
+        const res = super.toChart();
+        res.expanded = this.expanded;
+        return res;
     }
 
     chainUpdateFromTask(taskId: number) {

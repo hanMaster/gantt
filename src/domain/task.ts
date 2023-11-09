@@ -49,6 +49,19 @@ export class Task {
         return this.#dependencies;
     }
 
+    addOrUpdateDependency(d: Dependency) {
+        const idx = this.#dependencies.findIndex((i) => i.id === d.id);
+        if (idx === -1) {
+            this.#dependencies.push(d);
+        } else {
+            this.#dependencies.splice(idx, 1, d);
+        }
+    }
+
+    deleteDependency(depId: number) {
+        this.#dependencies = this.#dependencies.filter((d) => d.id !== depId);
+    }
+
     set title(title: string) {
         this.#title = title;
     }
@@ -79,6 +92,7 @@ export class Task {
             days: this.days,
             startDate: dayjs(this.startDate).format('DD.MM.YYYY'),
             endDate: dayjs(this.endDate).format('DD.MM.YYYY'),
+            deps: this.#dependencies,
         };
     }
 }

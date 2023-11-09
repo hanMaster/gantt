@@ -1,10 +1,10 @@
 import { For, Show, createSignal } from 'solid-js';
+import { ChartNode, Dependency, DependencyTask, DependencyType, isSumTask } from './domain/interfaces.ts';
 import { SumTask } from './domain/sum-task';
-import counter from './utils/counter.ts';
 import { Task } from './domain/task.ts';
-import './App.css';
+import counter from './utils/counter.ts';
 import { forDateInput } from './utils/dates.ts';
-import { ChartNode, DependencyTask, DependencyType, isSumTask } from './domain/interfaces.ts';
+import './App.css';
 
 function App() {
     let project: SumTask;
@@ -179,7 +179,16 @@ function App() {
 
     const handleLink = (id: number) => {
         setDeps(project.getDependenciesForTask(id));
+        setSelected(id);
         setShowLinkForm(true);
+    };
+
+    const genDeps = (task: ChartNode) => {
+        const res = task.deps
+            .map((dep) => `${dep.id}${dep.dependencyType == DependencyType.EndStart ? 'он' : 'нн'}${dep.delayInDays}д`)
+            .join(';');
+
+        return <>{res}</>;
     };
 
     const genRow = (t: ChartNode) => {
@@ -201,8 +210,13 @@ function App() {
                     <td class="move" onClick={() => handleDown(t.id)}>
                         <i class="bx bxs-down-arrow"></i>
                     </td>
-                    <td class={t.id > 1 ? 'move' : undefined} onClick={() => handleLink(t.id)}>
-                        {t.id > 1 && <i class="bx bx-link"></i>}
+                    <td class={t.id > 1 ? 'deps' : undefined} onClick={() => handleLink(t.id)}>
+                        {t.id > 1 && (
+                            <>
+                                <i class="bx bx-link"></i> <br />
+                                {genDeps(t)}
+                            </>
+                        )}
                     </td>
                 </tr>
             );
@@ -228,8 +242,9 @@ function App() {
                     <td class="move" onClick={() => handleDown(t.id)}>
                         <i class="bx bxs-down-arrow"></i>
                     </td>
-                    <td class="move" onClick={() => handleLink(t.id)}>
+                    <td class="deps" onClick={() => handleLink(t.id)}>
                         <i class="bx bx-link"></i>
+                        {genDeps(t)}
                     </td>
                 </tr>
             );
@@ -237,10 +252,36 @@ function App() {
     };
 
     const handleCancel = () => {
+        setSelected(0);
         setDepTaskId(0);
         setDepType(DependencyType.EndStart);
         setDelay(0);
         setShowLinkForm(false);
+    };
+
+    const handleAddDependency = (e: Event) => {
+        e.preventDefault();
+        const task = project.getNodeById(selected());
+        if (task && depTaskId() > 0) {
+            const d: Dependency = {
+                id: depTaskId(),
+                dependencyType: depType(),
+                delayInDays: delay(),
+            };
+            task.addOrUpdateDependency(d);
+            setGantt(project.getChartTasks());
+        }
+        handleCancel();
+    };
+
+    const handleDeleteDependency = (e: Event) => {
+        e.preventDefault();
+        const task = project.getNodeById(selected());
+        if (task && depTaskId() > 0) {
+            task.deleteDependency(depTaskId());
+            setGantt(project.getChartTasks());
+        }
+        handleCancel();
     };
 
     return (
@@ -252,7 +293,11 @@ function App() {
             {showLinkForm() && (
                 <form class="deps-form">
                     <h2>Редактирование связи</h2>
-                    <select class="deps-input" value={depTaskId()}>
+                    <select
+                        class="deps-input"
+                        value={depTaskId()}
+                        onInput={(e) => setDepTaskId(Number(e.target.value))}
+                    >
                         <For each={deps()}>
                             {(dep) => (
                                 <option
@@ -264,18 +309,39 @@ function App() {
                     <div class="deps-properties">
                         <div class="form-group">
                             <label for="dep-type">Тип связи</label>
-                            <select id="dep-type" class="deps-input" value={depType()}>
+                            <select
+                                id="dep-type"
+                                class="deps-input"
+                                value={depType()}
+                                onInput={(e) =>
+                                    setDepType(
+                                        e.target.value == 'es' ? DependencyType.EndStart : DependencyType.StartStart
+                                    )
+                                }
+                            >
                                 <option value="es">Окночание-Начало</option>
                                 <option value="ss">Начало-Начало</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="delay">Задержка</label>
-                            <input id="delay" class="deps-input" type="number" step="1" value={delay()} />
+                            <input
+                                id="delay"
+                                class="deps-input"
+                                type="number"
+                                step="1"
+                                value={delay()}
+                                onInput={(e) => setDelay(Number(e.target.value))}
+                            />
                         </div>
                     </div>
                     <div class="buttons">
-                        <button class="ok">Ок</button>
+                        <button class="ok" onClick={handleAddDependency}>
+                            Создать
+                        </button>
+                        <button class="ok" onClick={handleDeleteDependency}>
+                            Удалить
+                        </button>
                         <button class="cancel" onClick={handleCancel}>
                             Отмена
                         </button>

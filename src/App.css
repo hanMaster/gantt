@@ -88,6 +88,11 @@ td.move {
     cursor: pointer;
 }
 
+td.deps {
+    cursor: pointer;
+    text-align: left;
+}
+
 td.move:hover {
     color: brown;
 }

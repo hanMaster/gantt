@@ -14,6 +14,7 @@ export interface ChartNode {
     startDate: string;
     endDate: string;
     expanded?: boolean;
+    deps: Dependency[];
 }
 
 export interface DependencyTask {
