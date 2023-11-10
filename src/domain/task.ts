@@ -24,6 +24,7 @@ export class Task {
             this.#startDate = new Date(p.startDate);
             this.#days = p.days;
             this.#endDate = new Date(p.endDate);
+            this.#dependencies = p.dependencies;
             this.project = project;
         } else {
             this.#id = p.id;

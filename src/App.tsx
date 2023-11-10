@@ -2,7 +2,6 @@ import { For, Show, createSignal } from 'solid-js';
 import { ChartNode, Dependency, DependencyTask, DependencyType, isSumTask } from './domain/interfaces.ts';
 import { SumTask } from './domain/sum-task';
 import { Task } from './domain/task.ts';
-import counter from './utils/counter.ts';
 import { forDateInput } from './utils/dates.ts';
 import { Project } from './domain/project.ts';
 import './App.css';
@@ -18,7 +17,7 @@ function App() {
     const [delay, setDelay] = createSignal<number>(0);
 
     const addSumTask = () => {
-        const id = counter();
+        const id = project.counter;
         const root = selected() > 0 ? project.getNodeById(selected()) : project.root;
         if (isSumTask(root)) {
             root.addTask(new SumTask(project, { id, title: `Суммарная задача ${id}`, sumTaskId: root.id }));
@@ -27,7 +26,7 @@ function App() {
     };
 
     const addTask = () => {
-        const id = counter();
+        const id = project.counter;
         const root = selected() > 0 ? project.getNodeById(selected()) : project.root;
         if (isSumTask(root)) {
             root.addTask(new Task(project, { id, title: `Задача ${id}`, sumTaskId: root.id }));

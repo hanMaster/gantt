@@ -9,6 +9,7 @@ export class Project {
     root: SumTask = new SumTask(this, { id: 1, title: 'Проект', sumTaskId: 0 });
     #nodes: TaskNode[] = [this.root];
     #calcDepsActive = false;
+    #counter = 2;
 
     constructor() {
         const tasks = localStorage.getItem('tasks');
@@ -24,7 +25,12 @@ export class Project {
             });
             this.setChildren(persisted);
             this.root.updateDates();
+            this.#counter = Math.max(...persisted.map((p) => p.id)) + 1;
         }
+    }
+
+    get counter() {
+        return this.#counter++;
     }
 
     persist() {
