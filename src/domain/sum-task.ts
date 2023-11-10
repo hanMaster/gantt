@@ -23,19 +23,6 @@ export class SumTask extends Task {
         this.updateDates();
     }
 
-    // getAllTasks(): Task[] {
-    //     const result = [];
-    //     result.push(this);
-    //     for (let node of this.#children) {
-    //         if (isSumTask(node)) {
-    //             result.push(...node.getAllTasks());
-    //         } else {
-    //             result.push(node);
-    //         }
-    //     }
-    //     return result;
-    // }
-
     toChart(): ChartNode {
         const res = super.toChart();
         res.expanded = this.expanded;
