@@ -4,11 +4,12 @@ import { SumTask } from './domain/sum-task';
 import { Task } from './domain/task.ts';
 import counter from './utils/counter.ts';
 import { forDateInput } from './utils/dates.ts';
+import { Project } from './domain/project.ts';
 import './App.css';
 
 function App() {
-    let project: SumTask;
-    const [gantt, setGantt] = createSignal<ChartNode[]>([]);
+    const project = new Project(1, 'Проект');
+    const [gantt, setGantt] = createSignal<ChartNode[]>(project.getChartTasks());
     const [selected, setSelected] = createSignal<number>(0);
     const [showLinkForm, setShowLinkForm] = createSignal<boolean>(false);
     const [deps, setDeps] = createSignal<DependencyTask[]>([]);
@@ -18,27 +19,19 @@ function App() {
 
     const addSumTask = () => {
         const id = counter();
-        if (gantt().length) {
-            const root = selected() > 0 ? project.getNodeById(selected()) : project;
-            if (isSumTask(root)) {
-                root.addTask(new SumTask(id, `Суммарная задача ${id}`, root.id));
-                setGantt(project.getChartTasks());
-            }
-        } else {
-            project = new SumTask(id, `Суммарная задача ${id}`, 0);
-            project.expanded = true;
+        const root = selected() > 0 ? project.getNodeById(selected()) : project;
+        if (isSumTask(root)) {
+            root.addTask(new SumTask(id, `Суммарная задача ${id}`, root.id, project));
             setGantt(project.getChartTasks());
         }
     };
 
     const addTask = () => {
-        if (gantt().length) {
-            const id = counter();
-            const root = selected() > 0 ? project.getNodeById(selected()) : project;
-            if (isSumTask(root)) {
-                root.addTask(new Task(id, `Задача ${id}`, root.id));
-                setGantt(project.getChartTasks());
-            }
+        const id = counter();
+        const root = selected() > 0 ? project.getNodeById(selected()) : project;
+        if (isSumTask(root)) {
+            root.addTask(new Task(id, `Задача ${id}`, root.id, project));
+            setGantt(project.getChartTasks());
         }
     };
 
@@ -184,11 +177,16 @@ function App() {
     };
 
     const genDeps = (task: ChartNode) => {
-        const res = task.deps
-            .map((dep) => `${dep.id}${dep.dependencyType == DependencyType.EndStart ? 'он' : 'нн'}${dep.delayInDays}д`)
-            .join(';');
+        if (task.deps) {
+            const res = task.deps
+                .map(
+                    (dep) =>
+                        `${dep.id}${dep.dependencyType == DependencyType.EndStart ? 'он' : 'нн'}${dep.delayInDays}д`
+                )
+                .join(';');
 
-        return <>{res}</>;
+            return <>{res}</>;
+        }
     };
 
     const genRow = (t: ChartNode) => {

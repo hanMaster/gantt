@@ -1,10 +1,12 @@
 import { toEndDate, toSatrtDate } from './../utils/dates';
 import dayjs from 'dayjs';
 import { ChartNode, Dependency } from './interfaces';
+import { Project } from './project';
 
 export class Task {
     #id: number;
     #title: string;
+    project: Project;
     #sumTaskId: number;
     #dependencies: Dependency[] = [];
     #startDate = toSatrtDate(new Date());
@@ -12,10 +14,11 @@ export class Task {
     #endDate = dayjs(this.#startDate).add(1, 'days').subtract(1, 'second').toDate();
     #volume = 0;
 
-    constructor(id: number, title: string, sumTaskId: number) {
+    constructor(id: number, title: string, sumTaskId: number, project: Project) {
         this.#id = id;
         this.#title = title;
         this.#sumTaskId = sumTaskId;
+        this.project = project;
     }
 
     get id() {

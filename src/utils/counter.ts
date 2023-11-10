@@ -1,5 +1,5 @@
 const createCounter = () => {
-    let count = 1;
+    let count = 2;
     return function () {
         return count++;
     };

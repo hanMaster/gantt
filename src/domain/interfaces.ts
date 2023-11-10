@@ -1,9 +1,10 @@
+import { Project } from './project';
 import { SumTask } from './sum-task';
 import { Task } from './task';
 
 export type TaskNode = Task | SumTask;
 
-export function isSumTask(node: TaskNode | null): node is SumTask {
+export function isSumTask(node: Task | Project | null): node is SumTask {
     return node instanceof SumTask;
 }
 
@@ -14,7 +15,7 @@ export interface ChartNode {
     startDate: string;
     endDate: string;
     expanded?: boolean;
-    deps: Dependency[];
+    deps?: Dependency[];
 }
 
 export interface DependencyTask {
