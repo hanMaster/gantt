@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import minMax from 'dayjs/plugin/minMax';
 import { Task } from './task';
-import { ChartNode, TaskNode, isSumTask } from './interfaces';
+import { ChartNode, DependencyTask, TaskNode, isSumTask } from './interfaces';
 import { Project } from './project';
 
 dayjs.extend(minMax);
@@ -77,6 +77,37 @@ export class SumTask extends Task {
         }
 
         return result;
+    }
+
+    getParentsForFilter(taskId: number): number[] {
+        const res = [];
+        let id = taskId;
+        res.push(taskId);
+        while (id > 0) {
+            const task = this.project.getNodeById(id);
+            res.push(task.sumTaskId);
+            id = task.sumTaskId;
+        }
+        return res;
+    }
+
+    getDependenciesForTask(taskId: number): DependencyTask[] {
+        const task = this.project.getNodeById(taskId);
+        const chartTasks = this.project.getAllTasks();
+        const excludeList: number[] = this.getParentsForFilter(taskId);
+        if (isSumTask(task)) {
+            excludeList.push(...task.getChildrenForFilter(taskId));
+        }
+
+        const res = chartTasks
+            .filter((t) => !excludeList.includes(t.id))
+            .map((t) => ({
+                id: t.id,
+                title: t.title,
+                startDate: dayjs(this.startDate).format('DD.MM.YYYY'),
+                endDate: dayjs(this.endDate).format('DD.MM.YYYY'),
+            }));
+        return res;
     }
 
     private calcDates(): { start: Date; end: Date } {

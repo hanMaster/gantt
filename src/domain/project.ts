@@ -2,46 +2,30 @@ import dayjs from 'dayjs';
 import { ChartNode, Dependency, DependencyTask, DependencyType, TaskNode, isSumTask } from './interfaces';
 import { toSatrtDate } from '../utils/dates';
 import { swapItems } from '../utils/children';
+import { SumTask } from './sum-task';
 
 export class Project {
-    #nodes: TaskNode[] = [];
-    #id: number;
-    #title: string;
-    #startDate = toSatrtDate(new Date());
-    #dependencies: Dependency[] = [];
-    #days = 1;
-    #endDate = dayjs(this.#startDate).add(1, 'days').subtract(1, 'second').toDate();
-    expanded = true;
-    sumTaskId = 0;
-    #children: TaskNode[] = [];
+    root: SumTask = new SumTask(1, 'Проект', 0, this);
+    #nodes: TaskNode[] = [this.root];
 
-    constructor(id: number, title: string) {
-        this.#id = id;
-        this.#title = title;
+    constructor() {}
+
+    addTask(task: TaskNode) {
+        this.root.children.push(task);
+        this.registerTask(task);
+        this.root.updateDates();
     }
 
-    get dependencies() {
-        return this.#dependencies;
+    getChartTasks(): ChartNode[] {
+        return this.root.getChartTasks();
     }
 
-    get id() {
-        return this.#id;
+    getDependenciesForTask(taskId: number): DependencyTask[] {
+        return this.root.getDependenciesForTask(taskId);
     }
 
-    get startDate() {
-        return this.#startDate;
-    }
-
-    get endDate() {
-        return this.#endDate;
-    }
-
-    get title() {
-        return this.#title;
-    }
-
-    registerTask(t: TaskNode) {
-        this.#nodes.push(t);
+    registerTask(task: TaskNode) {
+        this.#nodes.push(task);
     }
 
     getAllTasks(): TaskNode[] {
@@ -50,33 +34,9 @@ export class Project {
 
     getNodeById(id: number): TaskNode {
         const res = this.#nodes.find((n) => n.id === id);
+
         if (!res) throw new Error('TaskNode not found');
         return res;
-    }
-
-    getChartTasks(): ChartNode[] {
-        const result = [];
-        result.push(this.toChart());
-        if (this.expanded) {
-            for (let node of this.#children) {
-                if (isSumTask(node) && node.expanded) {
-                    result.push(...node.getChartTasks());
-                } else {
-                    result.push(node.toChart());
-                }
-            }
-        }
-        return result;
-    }
-
-    toChart(): ChartNode {
-        return {
-            id: this.#id,
-            title: this.#title,
-            days: this.#days,
-            startDate: dayjs(this.#startDate).format('DD.MM.YYYY'),
-            endDate: dayjs(this.#endDate).format('DD.MM.YYYY'),
-        };
     }
 
     moveChild(taskId: number, up = true) {
@@ -87,37 +47,6 @@ export class Project {
                 swapItems(parent.children, taskId, up);
             }
         }
-    }
-
-    getParentsForFilter(taskId: number): number[] {
-        const res = [];
-        let id = taskId;
-        res.push(taskId);
-        while (id > 0) {
-            const task = this.getNodeById(id);
-            res.push(task.sumTaskId);
-            id = task.sumTaskId;
-        }
-        return res;
-    }
-
-    getDependenciesForTask(taskId: number): DependencyTask[] {
-        const task = this.getNodeById(taskId);
-        const chartTasks = this.getAllTasks();
-        const excludeList: number[] = this.getParentsForFilter(taskId);
-        if (isSumTask(task)) {
-            excludeList.push(...task.getChildrenForFilter(taskId));
-        }
-
-        const res = chartTasks
-            .filter((t) => !excludeList.includes(t.id))
-            .map((t) => ({
-                id: t.id,
-                title: t.title,
-                startDate: dayjs(this.startDate).format('DD.MM.YYYY'),
-                endDate: dayjs(this.endDate).format('DD.MM.YYYY'),
-            }));
-        return res;
     }
 
     chainUpdateFromTask(taskId: number) {

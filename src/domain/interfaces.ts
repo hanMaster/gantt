@@ -1,10 +1,9 @@
-import { Project } from './project';
 import { SumTask } from './sum-task';
 import { Task } from './task';
 
 export type TaskNode = Task | SumTask;
 
-export function isSumTask(node: Task | Project | null): node is SumTask {
+export function isSumTask(node: unknown): node is SumTask {
     return node instanceof SumTask;
 }
 

@@ -8,7 +8,7 @@ import { Project } from './domain/project.ts';
 import './App.css';
 
 function App() {
-    const project = new Project(1, 'Проект');
+    const project = new Project();
     const [gantt, setGantt] = createSignal<ChartNode[]>(project.getChartTasks());
     const [selected, setSelected] = createSignal<number>(0);
     const [showLinkForm, setShowLinkForm] = createSignal<boolean>(false);
