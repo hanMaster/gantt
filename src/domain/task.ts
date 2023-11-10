@@ -84,6 +84,7 @@ export class Task {
         } else {
             this.#endDate = dayjs(this.#startDate).add(this.#days, 'days').subtract(1, 'second').toDate();
         }
+        this.project.calcDeps();
     }
 
     set depStartDate(date: Date) {
@@ -94,17 +95,22 @@ export class Task {
     set days(days: number) {
         this.#days = days;
         this.#endDate = dayjs(this.#startDate).add(this.#days, 'days').subtract(1, 'second').toDate();
+        this.project.calcDeps();
     }
 
     set endDate(date: Date) {
-        this.#endDate = toEndDate(date);
         if (dayjs(date).isBefore(dayjs(this.#startDate))) {
-            this.#startDate = dayjs(date)
-                .subtract(this.#days - 1, 'days')
-                .toDate();
+            if (this.isStartDateChangeAllowed) {
+                this.#startDate = dayjs(date)
+                    .subtract(this.#days - 1, 'days')
+                    .toDate();
+                this.#endDate = toEndDate(date);
+            }
         } else {
+            this.#endDate = toEndDate(date);
             this.#days = dayjs(this.#endDate).diff(this.#startDate, 'days') + 1;
         }
+        this.project.calcDeps();
     }
 
     toChart(): ChartNode {

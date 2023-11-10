@@ -7,8 +7,13 @@ import { SumTask } from './sum-task';
 export class Project {
     root: SumTask = new SumTask(1, 'Проект', 0, this);
     #nodes: TaskNode[] = [this.root];
+    #calcDepsActive = false;
 
     constructor() {}
+
+    get isCalcDepsActive() {
+        return this.#calcDepsActive;
+    }
 
     addTask(task: TaskNode) {
         this.root.children.push(task);
@@ -72,22 +77,18 @@ export class Project {
         this.calcDeps();
     }
 
-    private calcDeps() {
+    calcDeps() {
+        if (this.#calcDepsActive) return;
+        this.#calcDepsActive = true;
         const tasks = this.getAllTasks();
         tasks.forEach((t) => {
-            console.log('deps start', t);
-
             const parentDeps = [];
             if (t.sumTaskId > 1) {
                 const parent = this.getNodeById(t.sumTaskId);
                 parentDeps.push(...parent.dependencies);
             }
 
-            if (t.dependencies.length) {
-                console.log('parentDeps', parentDeps);
-            }
             const deps = [...parentDeps, ...t.dependencies];
-            console.log('deps', deps);
 
             if (deps.length) {
                 const dates = deps.map((d) => {
@@ -100,12 +101,11 @@ export class Project {
                 });
 
                 const newDate = dayjs.max([...dates])?.toDate();
-                // console.log('deps newDate', newDate);
-
                 t.startDate = newDate as Date;
-                // console.log('deps updates', t);
+                t.days = t.days;
                 this.chainUpdateFromTask(t.id);
             }
         });
+        this.#calcDepsActive = false;
     }
 }
