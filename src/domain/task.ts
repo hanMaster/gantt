@@ -1,6 +1,6 @@
 import { toEndDate, toSatrtDate } from './../utils/dates';
 import dayjs from 'dayjs';
-import { ChartNode, Dependency } from './interfaces';
+import { ChartNode, Dependency, Persisted } from './interfaces';
 import { Project } from './project';
 
 export class Task {
@@ -19,6 +19,18 @@ export class Task {
         this.#title = title;
         this.#sumTaskId = sumTaskId;
         this.project = project;
+    }
+
+    persist(): Persisted {
+        return {
+            id: this.#id,
+            title: this.#title,
+            sumTaskId: this.#sumTaskId,
+            dependencies: this.#dependencies,
+            startDate: this.#startDate,
+            days: this.#days,
+            endDate: this.#endDate,
+        };
     }
 
     get isStartDateChangeAllowed() {

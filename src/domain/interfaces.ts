@@ -34,3 +34,15 @@ export interface Dependency {
     dependencyType: DependencyType;
     delayInDays: number;
 }
+
+export interface Persisted {
+    id: number;
+    title: string;
+    sumTaskId: number;
+    dependencies: Dependency[];
+    startDate: Date;
+    days: number;
+    endDate: Date;
+    children?: number[];
+    expanded?: boolean;
+}

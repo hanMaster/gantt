@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { ChartNode, Dependency, DependencyTask, DependencyType, TaskNode, isSumTask } from './interfaces';
+import { ChartNode, Dependency, DependencyTask, DependencyType, Persisted, TaskNode, isSumTask } from './interfaces';
 import { toSatrtDate } from '../utils/dates';
 import { swapItems } from '../utils/children';
 import { SumTask } from './sum-task';
@@ -9,7 +9,11 @@ export class Project {
     #nodes: TaskNode[] = [this.root];
     #calcDepsActive = false;
 
-    constructor() {}
+    persist() {
+        const tasks: Persisted[] = [];
+        tasks.push(...this.#nodes.map((n) => n.persist()));
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
 
     get isCalcDepsActive() {
         return this.#calcDepsActive;

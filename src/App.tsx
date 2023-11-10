@@ -287,11 +287,16 @@ function App() {
         handleCancel();
     };
 
+    const handlePersist = () => {
+        project.persist();
+    };
+
     return (
         <>
             <div class="actions">
                 <button onClick={addSumTask}>Суммарная задача</button>
                 <button onClick={addTask}>Задача</button>
+                <button onClick={handlePersist}>Сохранить</button>
             </div>
             {showLinkForm() && (
                 <form class="deps-form">

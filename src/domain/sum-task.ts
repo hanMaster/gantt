@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import minMax from 'dayjs/plugin/minMax';
 import { Task } from './task';
-import { ChartNode, DependencyTask, TaskNode, isSumTask } from './interfaces';
+import { ChartNode, DependencyTask, Persisted, TaskNode, isSumTask } from './interfaces';
 import { Project } from './project';
 
 dayjs.extend(minMax);
@@ -11,6 +11,13 @@ export class SumTask extends Task {
     expanded = false;
     constructor(id: number, title: string, sumTaskId: number, project: Project) {
         super(id, title, sumTaskId, project);
+    }
+
+    persist(): Persisted {
+        const p = super.persist();
+        p.expanded = this.expanded;
+        p.children = this.#children.map((i) => i.id);
+        return p;
     }
 
     get children() {
