@@ -46,3 +46,13 @@ export interface Persisted {
     children?: number[];
     expanded?: boolean;
 }
+
+export interface NewTask {
+    id: number;
+    title: string;
+    sumTaskId: number;
+}
+
+export function isPersisted(p: Persisted | NewTask): p is Persisted {
+    return 'dependencies' in p;
+}

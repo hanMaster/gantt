@@ -1,6 +1,6 @@
 import { toEndDate, toSatrtDate } from './../utils/dates';
 import dayjs from 'dayjs';
-import { ChartNode, Dependency, Persisted } from './interfaces';
+import { ChartNode, Dependency, NewTask, Persisted, isPersisted } from './interfaces';
 import { Project } from './project';
 
 export class Task {
@@ -14,11 +14,23 @@ export class Task {
     #endDate = dayjs(this.#startDate).add(1, 'days').subtract(1, 'second').toDate();
     #volume = 0;
 
-    constructor(id: number, title: string, sumTaskId: number, project: Project) {
-        this.#id = id;
-        this.#title = title;
-        this.#sumTaskId = sumTaskId;
-        this.project = project;
+    constructor(project: Project, p: Persisted);
+    constructor(project: Project, p: NewTask);
+    constructor(project: Project, p: Persisted | NewTask) {
+        if (isPersisted(p)) {
+            this.#id = p.id;
+            this.#title = p.title;
+            this.#sumTaskId = p.sumTaskId;
+            this.#startDate = p.startDate;
+            this.#days = p.days;
+            this.#endDate = p.endDate;
+            this.project = project;
+        } else {
+            this.#id = p.id;
+            this.#title = p.title;
+            this.#sumTaskId = p.sumTaskId;
+            this.project = project;
+        }
     }
 
     persist(): Persisted {

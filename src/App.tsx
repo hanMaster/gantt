@@ -21,7 +21,7 @@ function App() {
         const id = counter();
         const root = selected() > 0 ? project.getNodeById(selected()) : project.root;
         if (isSumTask(root)) {
-            root.addTask(new SumTask(id, `Суммарная задача ${id}`, root.id, project));
+            root.addTask(new SumTask(project, { id, title: `Суммарная задача ${id}`, sumTaskId: root.id }));
             setGantt(project.getChartTasks());
         }
     };
@@ -30,7 +30,7 @@ function App() {
         const id = counter();
         const root = selected() > 0 ? project.getNodeById(selected()) : project.root;
         if (isSumTask(root)) {
-            root.addTask(new Task(id, `Задача ${id}`, root.id, project));
+            root.addTask(new Task(project, { id, title: `Задача ${id}`, sumTaskId: root.id }));
             setGantt(project.getChartTasks());
         }
     };

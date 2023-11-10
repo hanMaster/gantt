@@ -3,11 +3,29 @@ import { ChartNode, Dependency, DependencyTask, DependencyType, Persisted, TaskN
 import { toSatrtDate } from '../utils/dates';
 import { swapItems } from '../utils/children';
 import { SumTask } from './sum-task';
+import { Task } from './task';
 
 export class Project {
-    root: SumTask = new SumTask(1, 'Проект', 0, this);
+    root: SumTask = new SumTask(this, { id: 1, title: 'Проект', sumTaskId: 0 });
     #nodes: TaskNode[] = [this.root];
     #calcDepsActive = false;
+
+    constructor() {
+        const tasks = localStorage.getItem('tasks');
+        if (tasks) {
+            const persisted: Persisted[] = JSON.parse(tasks);
+            persisted.forEach((p) => {
+                if (p.id === 1) return;
+                if ('children' in p) {
+                    this.#nodes.push(new SumTask(this, p));
+                } else {
+                    this.#nodes.push(new Task(this, p));
+                }
+            });
+        }
+
+        console.log('nodes', this.#nodes);
+    }
 
     persist() {
         const tasks: Persisted[] = [];
