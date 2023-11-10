@@ -21,9 +21,9 @@ export class Task {
             this.#id = p.id;
             this.#title = p.title;
             this.#sumTaskId = p.sumTaskId;
-            this.#startDate = p.startDate;
+            this.#startDate = new Date(p.startDate);
             this.#days = p.days;
-            this.#endDate = p.endDate;
+            this.#endDate = new Date(p.endDate);
             this.project = project;
         } else {
             this.#id = p.id;

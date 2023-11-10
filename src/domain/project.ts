@@ -22,15 +22,28 @@ export class Project {
                     this.#nodes.push(new Task(this, p));
                 }
             });
+            this.setChildren(persisted);
+            this.root.updateDates();
         }
-
-        console.log('nodes', this.#nodes);
     }
 
     persist() {
         const tasks: Persisted[] = [];
         tasks.push(...this.#nodes.map((n) => n.persist()));
         localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    setChildren(persisted: Persisted[]) {
+        persisted.forEach((p) => {
+            if ('children' in p) {
+                const task = this.getNodeById(p.id);
+                if (isSumTask(task)) {
+                    p.children?.forEach((c) => {
+                        task.children.push(this.getNodeById(c));
+                    });
+                }
+            }
+        });
     }
 
     get isCalcDepsActive() {
