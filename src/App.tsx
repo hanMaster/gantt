@@ -19,7 +19,7 @@ function App() {
 
     const addSumTask = () => {
         const id = counter();
-        const root = selected() > 0 ? project.getNodeById(selected()) : project;
+        const root = selected() > 0 ? project.getNodeById(selected()) : project.root;
         if (isSumTask(root)) {
             root.addTask(new SumTask(id, `Суммарная задача ${id}`, root.id, project));
             setGantt(project.getChartTasks());
@@ -28,7 +28,7 @@ function App() {
 
     const addTask = () => {
         const id = counter();
-        const root = selected() > 0 ? project.getNodeById(selected()) : project;
+        const root = selected() > 0 ? project.getNodeById(selected()) : project.root;
         if (isSumTask(root)) {
             root.addTask(new Task(id, `Задача ${id}`, root.id, project));
             setGantt(project.getChartTasks());
@@ -123,6 +123,12 @@ function App() {
     };
 
     const changeDate = (e: Event, t: ChartNode, start = true) => {
+        if (start) {
+            const task = project.getNodeById(t.id);
+            if (!task.isStartDateChangeAllowed) {
+                return;
+            }
+        }
         const td = e.target as HTMLElement;
         const date = start ? t.startDate : t.endDate;
         const sdInput = document.createElement('input');

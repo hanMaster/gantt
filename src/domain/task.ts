@@ -21,6 +21,17 @@ export class Task {
         this.project = project;
     }
 
+    get isStartDateChangeAllowed() {
+        let parentAllowed = true;
+        if (this.#sumTaskId > 1) {
+            const parent = this.project.getNodeById(this.#sumTaskId);
+            if (parent.dependencies.length) {
+                parentAllowed = false;
+            }
+        }
+        return parentAllowed && this.#dependencies.length === 0;
+    }
+
     get id() {
         return this.#id;
     }

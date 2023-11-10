@@ -75,8 +75,22 @@ export class Project {
     private calcDeps() {
         const tasks = this.getAllTasks();
         tasks.forEach((t) => {
+            console.log('deps start', t);
+
+            const parentDeps = [];
+            if (t.sumTaskId > 1) {
+                const parent = this.getNodeById(t.sumTaskId);
+                parentDeps.push(...parent.dependencies);
+            }
+
             if (t.dependencies.length) {
-                const dates = t.dependencies.map((d) => {
+                console.log('parentDeps', parentDeps);
+            }
+            const deps = [...parentDeps, ...t.dependencies];
+            console.log('deps', deps);
+
+            if (deps.length) {
+                const dates = deps.map((d) => {
                     const dep = this.getNodeById(d.id);
                     if (d.dependencyType === DependencyType.EndStart) {
                         return dayjs(toSatrtDate(dep.endDate)).add(1, 'days').add(d.delayInDays, 'days');
@@ -85,7 +99,12 @@ export class Project {
                     }
                 });
 
-                console.log(dayjs.max([...dates])?.toDate());
+                const newDate = dayjs.max([...dates])?.toDate();
+                // console.log('deps newDate', newDate);
+
+                t.startDate = newDate as Date;
+                // console.log('deps updates', t);
+                this.chainUpdateFromTask(t.id);
             }
         });
     }

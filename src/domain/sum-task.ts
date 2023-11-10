@@ -58,7 +58,7 @@ export class SumTask extends Task {
     }
 
     updateDates() {
-        const { start, end } = this.calcDates();
+        const { start, end } = this.calcDatesFromChildren();
         this.startDate = start;
         this.endDate = end;
     }
@@ -110,7 +110,7 @@ export class SumTask extends Task {
         return res;
     }
 
-    private calcDates(): { start: Date; end: Date } {
+    private calcDatesFromChildren(): { start: Date; end: Date } {
         let start = new Date();
         let end = new Date();
         if (this.#children.length) {
