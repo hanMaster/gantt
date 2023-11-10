@@ -1,4 +1,4 @@
-import { TaskNode } from '../domain/sum-task';
+import { TaskNode } from '../domain/interfaces';
 
 export const swapItems = (children: TaskNode[], taskId: number, up: boolean) => {
     if (children.length === 1) return;

@@ -1,10 +1,12 @@
 import { toEndDate, toSatrtDate } from './../utils/dates';
 import dayjs from 'dayjs';
-import { ChartNode, Dependency } from './interfaces';
+import { ChartNode, Dependency, NewTask, Persisted, isPersisted } from './interfaces';
+import { Project } from './project';
 
 export class Task {
     #id: number;
     #title: string;
+    project: Project;
     #sumTaskId: number;
     #dependencies: Dependency[] = [];
     #startDate = toSatrtDate(new Date());
@@ -12,10 +14,47 @@ export class Task {
     #endDate = dayjs(this.#startDate).add(1, 'days').subtract(1, 'second').toDate();
     #volume = 0;
 
-    constructor(id: number, title: string, sumTaskId: number) {
-        this.#id = id;
-        this.#title = title;
-        this.#sumTaskId = sumTaskId;
+    constructor(project: Project, p: Persisted);
+    constructor(project: Project, p: NewTask);
+    constructor(project: Project, p: Persisted | NewTask) {
+        if (isPersisted(p)) {
+            this.#id = p.id;
+            this.#title = p.title;
+            this.#sumTaskId = p.sumTaskId;
+            this.#startDate = new Date(p.startDate);
+            this.#days = p.days;
+            this.#endDate = new Date(p.endDate);
+            this.#dependencies = p.dependencies;
+            this.project = project;
+        } else {
+            this.#id = p.id;
+            this.#title = p.title;
+            this.#sumTaskId = p.sumTaskId;
+            this.project = project;
+        }
+    }
+
+    persist(): Persisted {
+        return {
+            id: this.#id,
+            title: this.#title,
+            sumTaskId: this.#sumTaskId,
+            dependencies: this.#dependencies,
+            startDate: this.#startDate,
+            days: this.#days,
+            endDate: this.#endDate,
+        };
+    }
+
+    get isStartDateChangeAllowed() {
+        let parentAllowed = true;
+        if (this.#sumTaskId > 1) {
+            const parent = this.project.getNodeById(this.#sumTaskId);
+            if (parent.dependencies.length) {
+                parentAllowed = false;
+            }
+        }
+        return parentAllowed && this.#dependencies.length === 0;
     }
 
     get id() {
@@ -70,6 +109,7 @@ export class Task {
         } else {
             this.#endDate = dayjs(this.#startDate).add(this.#days, 'days').subtract(1, 'second').toDate();
         }
+        this.project.calcDeps();
     }
 
     set depStartDate(date: Date) {
@@ -80,17 +120,22 @@ export class Task {
     set days(days: number) {
         this.#days = days;
         this.#endDate = dayjs(this.#startDate).add(this.#days, 'days').subtract(1, 'second').toDate();
+        this.project.calcDeps();
     }
 
     set endDate(date: Date) {
-        this.#endDate = toEndDate(date);
         if (dayjs(date).isBefore(dayjs(this.#startDate))) {
-            this.#startDate = dayjs(date)
-                .subtract(this.#days - 1, 'days')
-                .toDate();
+            if (this.isStartDateChangeAllowed) {
+                this.#startDate = dayjs(date)
+                    .subtract(this.#days - 1, 'days')
+                    .toDate();
+                this.#endDate = toEndDate(date);
+            }
         } else {
+            this.#endDate = toEndDate(date);
             this.#days = dayjs(this.#endDate).diff(this.#startDate, 'days') + 1;
         }
+        this.project.calcDeps();
     }
 
     toChart(): ChartNode {

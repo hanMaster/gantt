@@ -2,13 +2,13 @@ import { For, Show, createSignal } from 'solid-js';
 import { ChartNode, Dependency, DependencyTask, DependencyType, isSumTask } from './domain/interfaces.ts';
 import { SumTask } from './domain/sum-task';
 import { Task } from './domain/task.ts';
-import counter from './utils/counter.ts';
 import { forDateInput } from './utils/dates.ts';
+import { Project } from './domain/project.ts';
 import './App.css';
 
 function App() {
-    let project: SumTask;
-    const [gantt, setGantt] = createSignal<ChartNode[]>([]);
+    const project = new Project();
+    const [gantt, setGantt] = createSignal<ChartNode[]>(project.getChartTasks());
     const [selected, setSelected] = createSignal<number>(0);
     const [showLinkForm, setShowLinkForm] = createSignal<boolean>(false);
     const [deps, setDeps] = createSignal<DependencyTask[]>([]);
@@ -17,28 +17,20 @@ function App() {
     const [delay, setDelay] = createSignal<number>(0);
 
     const addSumTask = () => {
-        const id = counter();
-        if (gantt().length) {
-            const root = selected() > 0 ? project.getNodeById(selected()) : project;
-            if (isSumTask(root)) {
-                root.addTask(new SumTask(id, `Суммарная задача ${id}`, root.id));
-                setGantt(project.getChartTasks());
-            }
-        } else {
-            project = new SumTask(id, `Суммарная задача ${id}`, 0);
-            project.expanded = true;
+        const id = project.counter;
+        const root = selected() > 0 ? project.getNodeById(selected()) : project.root;
+        if (isSumTask(root)) {
+            root.addTask(new SumTask(project, { id, title: `Суммарная задача ${id}`, sumTaskId: root.id }));
             setGantt(project.getChartTasks());
         }
     };
 
     const addTask = () => {
-        if (gantt().length) {
-            const id = counter();
-            const root = selected() > 0 ? project.getNodeById(selected()) : project;
-            if (isSumTask(root)) {
-                root.addTask(new Task(id, `Задача ${id}`, root.id));
-                setGantt(project.getChartTasks());
-            }
+        const id = project.counter;
+        const root = selected() > 0 ? project.getNodeById(selected()) : project.root;
+        if (isSumTask(root)) {
+            root.addTask(new Task(project, { id, title: `Задача ${id}`, sumTaskId: root.id }));
+            setGantt(project.getChartTasks());
         }
     };
 
@@ -130,6 +122,12 @@ function App() {
     };
 
     const changeDate = (e: Event, t: ChartNode, start = true) => {
+        if (start) {
+            const task = project.getNodeById(t.id);
+            if (!task.isStartDateChangeAllowed) {
+                return;
+            }
+        }
         const td = e.target as HTMLElement;
         const date = start ? t.startDate : t.endDate;
         const sdInput = document.createElement('input');
@@ -184,11 +182,16 @@ function App() {
     };
 
     const genDeps = (task: ChartNode) => {
-        const res = task.deps
-            .map((dep) => `${dep.id}${dep.dependencyType == DependencyType.EndStart ? 'он' : 'нн'}${dep.delayInDays}д`)
-            .join(';');
+        if (task.deps) {
+            const res = task.deps
+                .map(
+                    (dep) =>
+                        `${dep.id}${dep.dependencyType == DependencyType.EndStart ? 'он' : 'нн'}${dep.delayInDays}д`
+                )
+                .join(';');
 
-        return <>{res}</>;
+            return <>{res}</>;
+        }
     };
 
     const genRow = (t: ChartNode) => {
@@ -283,11 +286,16 @@ function App() {
         handleCancel();
     };
 
+    const handlePersist = () => {
+        project.persist();
+    };
+
     return (
         <>
             <div class="actions">
                 <button onClick={addSumTask}>Суммарная задача</button>
                 <button onClick={addTask}>Задача</button>
+                <button onClick={handlePersist}>Сохранить</button>
             </div>
             {showLinkForm() && (
                 <form class="deps-form">

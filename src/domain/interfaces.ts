@@ -3,7 +3,7 @@ import { Task } from './task';
 
 export type TaskNode = Task | SumTask;
 
-export function isSumTask(node: TaskNode | null): node is SumTask {
+export function isSumTask(node: unknown): node is SumTask {
     return node instanceof SumTask;
 }
 
@@ -14,7 +14,7 @@ export interface ChartNode {
     startDate: string;
     endDate: string;
     expanded?: boolean;
-    deps: Dependency[];
+    deps?: Dependency[];
 }
 
 export interface DependencyTask {
@@ -33,4 +33,26 @@ export interface Dependency {
     id: number;
     dependencyType: DependencyType;
     delayInDays: number;
+}
+
+export interface Persisted {
+    id: number;
+    title: string;
+    sumTaskId: number;
+    dependencies: Dependency[];
+    startDate: Date;
+    days: number;
+    endDate: Date;
+    children?: number[];
+    expanded?: boolean;
+}
+
+export interface NewTask {
+    id: number;
+    title: string;
+    sumTaskId: number;
+}
+
+export function isPersisted(p: Persisted | NewTask): p is Persisted {
+    return 'dependencies' in p;
 }
