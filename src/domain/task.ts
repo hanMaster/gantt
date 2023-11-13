@@ -12,7 +12,6 @@ export class Task {
     #startDate = toSatrtDate(new Date());
     #days = 1;
     #endDate = dayjs(this.#startDate).add(1, 'days').subtract(1, 'second').toDate();
-    #volume = 0;
 
     constructor(project: Project, p: Persisted);
     constructor(project: Project, p: NewTask);
@@ -73,10 +72,6 @@ export class Task {
         return this.#days;
     }
 
-    get volume() {
-        return this.#volume;
-    }
-
     get title() {
         return this.#title;
     }
@@ -95,10 +90,6 @@ export class Task {
 
     set title(title: string) {
         this.#title = title;
-    }
-
-    set volume(vol: number) {
-        this.#volume = vol;
     }
 
     set startDate(date: Date) {
