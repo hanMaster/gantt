@@ -3,7 +3,7 @@ import { Task } from './task';
 
 export type TaskNode = Task | SumTask;
 
-export function isSumTask(node: unknown): node is SumTask {
+export function isSumTask(node: Task | SumTask): node is SumTask {
     return node instanceof SumTask;
 }
 
