@@ -94,12 +94,7 @@ export class Task {
 
     set startDate(date: Date) {
         this.#startDate = toSatrtDate(date);
-        const newDays = dayjs(this.#endDate).diff(this.#startDate, 'days') + 1;
-        if (newDays > 0) {
-            this.#days = newDays;
-        } else {
-            this.#endDate = dayjs(this.#startDate).add(this.#days, 'days').subtract(1, 'second').toDate();
-        }
+        this.#endDate = dayjs(this.#startDate).add(this.#days, 'days').subtract(1, 'second').toDate();
         this.project.calcDeps();
     }
 
