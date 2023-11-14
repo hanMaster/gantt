@@ -62,16 +62,14 @@ export class SumTask extends Task {
         this.endDate = end;
     }
 
-    getChildrenForFilter(taskId: number): number[] {
+    getChildrenForFilter(): number[] {
         const result = [];
-        const task = this.project.getNodeById(taskId);
-        if (isSumTask(task)) {
-            for (let node of task.children) {
+        if (isSumTask(this)) {
+            for (let node of this.#children) {
                 if (isSumTask(node)) {
-                    result.push(...node.getChildrenForFilter(node.id));
-                } else {
-                    result.push(node.id);
+                    result.push(...node.getChildrenForFilter());
                 }
+                result.push(node.id);
             }
         }
 
@@ -95,7 +93,7 @@ export class SumTask extends Task {
         const chartTasks = this.project.getAllTasks();
         const excludeList: number[] = this.getParentsForFilter(taskId);
         if (isSumTask(task)) {
-            excludeList.push(...task.getChildrenForFilter(taskId));
+            excludeList.push(...task.getChildrenForFilter());
         }
 
         const res = chartTasks
